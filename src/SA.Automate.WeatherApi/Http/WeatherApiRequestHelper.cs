@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Net;
 using System.Text.Json;
 using SA.Automate.WeatherApi.Models;
@@ -29,16 +30,34 @@ internal static class WeatherApiRequestHelper
     }
 
     /// <summary>
+    /// Resolves the effective culture: an action-level override wins, otherwise the globally
+    /// configured default culture (<c>DefaultCulture</c> in appsettings.json). Returns null
+    /// when neither is set, in which case WeatherAPI.com falls back to English.
+    /// </summary>
+    public static string? ResolveCulture(string? actionOverride, string? globalDefault)
+    {
+        return !string.IsNullOrWhiteSpace(actionOverride) ? actionOverride : globalDefault;
+    }
+
+    /// <summary>
     /// Requests the current weather conditions for a location from the WeatherAPI.com
-    /// <c>current.json</c> endpoint.
+    /// <c>current.json</c> endpoint, optionally localizing the condition text into
+    /// <paramref name="languageCode"/> (a WeatherAPI.com <c>lang</c> value, see
+    /// <see cref="ResolveLanguageCode"/>).
     /// </summary>
     public static async Task<WeatherApiResult> GetCurrentWeatherAsync(
         HttpClient client,
         string apiKey,
         string location,
+        string? languageCode,
         CancellationToken cancellationToken)
     {
         var url = $"{BaseUrl}/current.json?key={Uri.EscapeDataString(apiKey)}&q={Uri.EscapeDataString(location)}";
+
+        if (!string.IsNullOrWhiteSpace(languageCode))
+        {
+            url += $"&lang={Uri.EscapeDataString(languageCode)}";
+        }
 
         using var response = await client.GetAsync(url, cancellationToken);
         var body = await response.Content.ReadAsStringAsync(cancellationToken);
@@ -63,7 +82,7 @@ internal static class WeatherApiRequestHelper
     {
         try
         {
-            var result = await GetCurrentWeatherAsync(client, apiKey, TestLocation, cancellationToken);
+            var result = await GetCurrentWeatherAsync(client, apiKey, TestLocation, null, cancellationToken);
 
             return result.IsSuccess
                 ? ConnectionValidationResult.Success("Connected")
@@ -74,6 +93,25 @@ internal static class WeatherApiRequestHelper
         {
             return ConnectionValidationResult.Failure("Could not reach the WeatherAPI.com server.", [ex.Message]);
         }
+    }
+
+    /// <summary>
+    /// Maps a .NET culture (e.g. "fr-FR") to the language code WeatherAPI.com's <c>lang</c>
+    /// query parameter expects. WeatherAPI.com only distinguishes Chinese by script rather than
+    /// region, so Traditional Chinese cultures map to "zh_tw" and everything else falls back to
+    /// the two-letter ISO language name.
+    /// </summary>
+    private static readonly string[] TraditionalChineseMarkers = ["Hant", "TW", "HK", "MO"];
+
+    public static string ResolveLanguageCode(CultureInfo culture)
+    {
+        if (string.Equals(culture.TwoLetterISOLanguageName, "zh", StringComparison.OrdinalIgnoreCase) &&
+            TraditionalChineseMarkers.Any(marker => culture.Name.Contains(marker, StringComparison.OrdinalIgnoreCase)))
+        {
+            return "zh_tw";
+        }
+
+        return culture.TwoLetterISOLanguageName;
     }
 
     private static string? TryParseErrorMessage(string body)

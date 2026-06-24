@@ -44,13 +44,16 @@ Get a free API key from [weatherapi.com](https://www.weatherapi.com/) and set it
     "Automate": {
       "Providers": {
         "SA.Automate.WeatherApi": {
-          "ApiKey": "your-api-key"
+          "ApiKey": "your-api-key",
+          "DefaultCulture": "en-GB"
         }
       }
     }
   }
 }
 ```
+
+`DefaultCulture` is optional and sets the default culture (e.g. `en-GB`, `fr-FR`) used to localize weather condition text across all actions. Leave it unset to default to English. An action's own **Culture** field always overrides this.
 
 ### 2. Create the connection in the backoffice
 
@@ -67,6 +70,7 @@ Add the **Get Current Weather** action to any automation and select the connecti
 | Field | Description |
 |---|---|
 | Location | The location to get current weather for. Accepts a city name, US zip, UK postcode, IP address, or `lat,lon`. Supports `${ binding }` expressions. |
+| Culture | Optional. The culture to localize the weather condition text into, e.g. `en-GB`, `fr-FR`, `es-ES`. Overrides the globally configured `DefaultCulture`. Falls back to that default, or English if neither is set. Supports `${ binding }` expressions. |
 
 The action outputs the following, which can be referenced via bindings in later workflow steps:
 

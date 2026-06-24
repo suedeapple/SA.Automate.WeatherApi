@@ -16,4 +16,10 @@ public class WeatherApiSettings
     /// with its own API Key.
     /// </summary>
     public string? ApiKey { get; set; }
+
+    /// <summary>
+    /// The default culture (e.g. "en-GB") used to localize weather condition text when an
+    /// action doesn't specify its own Culture setting.
+    /// </summary>
+    public string? DefaultCulture { get; set; }
 }

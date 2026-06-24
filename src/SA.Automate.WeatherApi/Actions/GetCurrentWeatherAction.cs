@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SA.Automate.WeatherApi.Configuration;
@@ -62,12 +63,29 @@ public class GetCurrentWeatherAction : ActionBase<GetCurrentWeatherSettings, Get
                 StepRunErrorCategory.Validation);
         }
 
+        var culture = WeatherApiRequestHelper.ResolveCulture(settings.Culture, _weatherApiSettings.CurrentValue.DefaultCulture);
+
+        string? languageCode = null;
+        if (!string.IsNullOrWhiteSpace(culture))
+        {
+            try
+            {
+                languageCode = WeatherApiRequestHelper.ResolveLanguageCode(CultureInfo.GetCultureInfo(culture));
+            }
+            catch (CultureNotFoundException ex)
+            {
+                return ActionResult.Failed(
+                    new ArgumentException($"\"{culture}\" is not a recognized culture.", ex),
+                    StepRunErrorCategory.Validation);
+            }
+        }
+
         try
         {
             var httpClient = _httpClientFactory.CreateClient();
 
             var result = await WeatherApiRequestHelper.GetCurrentWeatherAsync(
-                httpClient, apiKey, settings.Location, cancellationToken);
+                httpClient, apiKey, settings.Location, languageCode, cancellationToken);
 
             if (!result.IsSuccess)
             {
