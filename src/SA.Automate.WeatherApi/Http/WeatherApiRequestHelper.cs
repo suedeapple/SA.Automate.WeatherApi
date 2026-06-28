@@ -31,7 +31,7 @@ internal static class WeatherApiRequestHelper
 
     /// <summary>
     /// Resolves the effective culture: an action-level override wins, otherwise the globally
-    /// configured default culture (<c>DefaultCulture</c> in appsettings.json). Returns null
+    /// configured default culture (<c>Culture</c> in appsettings.json). Returns null
     /// when neither is set, in which case WeatherAPI.com falls back to English.
     /// </summary>
     public static string? ResolveCulture(string? actionOverride, string? globalDefault)
@@ -67,8 +67,40 @@ internal static class WeatherApiRequestHelper
             return new WeatherApiResult(false, null, TryParseErrorMessage(body), body, response.StatusCode);
         }
 
-        var parsed = JsonSerializer.Deserialize<WeatherApiResponse>(body);
+        var parsed = JsonSerializer.Deserialize<WeatherApiCurrentResponse>(body);
         return new WeatherApiResult(true, parsed, null, body, response.StatusCode);
+    }
+
+    /// <summary>
+    /// Requests today's weather forecast for a location from the WeatherAPI.com
+    /// <c>forecast.json</c> endpoint (requested with <c>days=1</c>), optionally localizing the
+    /// condition text into <paramref name="languageCode"/> (a WeatherAPI.com <c>lang</c> value,
+    /// see <see cref="ResolveLanguageCode"/>).
+    /// </summary>
+    public static async Task<WeatherApiForecastResult> GetTodaysWeatherAsync(
+        HttpClient client,
+        string apiKey,
+        string location,
+        string? languageCode,
+        CancellationToken cancellationToken)
+    {
+        var url = $"{BaseUrl}/forecast.json?key={Uri.EscapeDataString(apiKey)}&q={Uri.EscapeDataString(location)}&days=1";
+
+        if (!string.IsNullOrWhiteSpace(languageCode))
+        {
+            url += $"&lang={Uri.EscapeDataString(languageCode)}";
+        }
+
+        using var response = await client.GetAsync(url, cancellationToken);
+        var body = await response.Content.ReadAsStringAsync(cancellationToken);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            return new WeatherApiForecastResult(false, null, TryParseErrorMessage(body), body, response.StatusCode);
+        }
+
+        var parsed = JsonSerializer.Deserialize<WeatherApiForecastResponse>(body);
+        return new WeatherApiForecastResult(true, parsed, null, body, response.StatusCode);
     }
 
     /// <summary>
@@ -130,4 +162,9 @@ internal static class WeatherApiRequestHelper
 /// <summary>
 /// The outcome of a WeatherAPI.com current weather request.
 /// </summary>
-internal sealed record WeatherApiResult(bool IsSuccess, WeatherApiResponse? Response, string? ErrorMessage, string RawBody, HttpStatusCode StatusCode);
+internal sealed record WeatherApiResult(bool IsSuccess, WeatherApiCurrentResponse? Response, string? ErrorMessage, string RawBody, HttpStatusCode StatusCode);
+
+/// <summary>
+/// The outcome of a WeatherAPI.com forecast request.
+/// </summary>
+internal sealed record WeatherApiForecastResult(bool IsSuccess, WeatherApiForecastResponse? Response, string? ErrorMessage, string RawBody, HttpStatusCode StatusCode);

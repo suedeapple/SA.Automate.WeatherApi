@@ -9,24 +9,24 @@ using Umbraco.Automate.Core.Actions;
 namespace SA.Automate.WeatherApi.Actions;
 
 /// <summary>
-/// Umbraco Automate action that gets the current weather conditions for a location from
+/// Umbraco Automate action that gets today's weather forecast for a location from
 /// WeatherAPI.com, using the connection's API key if one is configured.
 /// </summary>
-[Action("weatherApi.GetCurrentWeather", "Get Current Weather",
-    Description = "Gets the current weather conditions for a location",
+[Action("weatherApi.GetTodaysWeather", "Get Today's Weather",
+    Description = "Gets today's weather forecast for a location",
     Group = "Weather",
     Icon = "icon-partly-cloudy",
     ConnectionTypeAlias = "weatherApi")]
-public class GetCurrentWeatherAction : ActionBase<GetCurrentWeatherSettings, GetCurrentWeatherOutput>
+public class GetTodaysWeatherAction : ActionBase<GetTodaysWeatherSettings, GetTodaysWeatherOutput>
 {
     private readonly IHttpClientFactory _httpClientFactory;
-    private readonly ILogger<GetCurrentWeatherAction> _logger;
+    private readonly ILogger<GetTodaysWeatherAction> _logger;
     private readonly IOptionsMonitor<WeatherApiSettings> _weatherApiSettings;
 
-    public GetCurrentWeatherAction(
+    public GetTodaysWeatherAction(
         ActionInfrastructure infrastructure,
         IHttpClientFactory httpClientFactory,
-        ILogger<GetCurrentWeatherAction> logger,
+        ILogger<GetTodaysWeatherAction> logger,
         IOptionsMonitor<WeatherApiSettings> weatherApiSettings)
         : base(infrastructure)
     {
@@ -36,15 +36,15 @@ public class GetCurrentWeatherAction : ActionBase<GetCurrentWeatherSettings, Get
     }
 
     /// <summary>
-    /// Executes the action by requesting the current weather for the configured location
-    /// from the WeatherAPI.com current weather endpoint. Returns a failed result on validation
+    /// Executes the action by requesting today's weather forecast for the configured location
+    /// from the WeatherAPI.com forecast endpoint. Returns a failed result on validation
     /// errors, missing configuration, or a non-success API response.
     /// </summary>
     public override async Task<ActionResult> ExecuteAsync(
         ActionContext context,
         CancellationToken cancellationToken)
     {
-        var settings = context.GetSettings<GetCurrentWeatherSettings>();
+        var settings = context.GetSettings<GetTodaysWeatherSettings>();
 
         if (string.IsNullOrWhiteSpace(settings.Location))
         {
@@ -84,7 +84,7 @@ public class GetCurrentWeatherAction : ActionBase<GetCurrentWeatherSettings, Get
         {
             var httpClient = _httpClientFactory.CreateClient();
 
-            var result = await WeatherApiRequestHelper.GetCurrentWeatherAsync(
+            var result = await WeatherApiRequestHelper.GetTodaysWeatherAsync(
                 httpClient, apiKey, settings.Location, languageCode, cancellationToken);
 
             if (!result.IsSuccess)
@@ -98,42 +98,51 @@ public class GetCurrentWeatherAction : ActionBase<GetCurrentWeatherSettings, Get
             }
 
             var location = result.Response?.Location;
-            var current = result.Response?.Current;
-            var condition = current?.Condition;
+            var forecastDay = result.Response?.Forecast?.ForecastDay?.FirstOrDefault();
+            var day = forecastDay?.Day;
+            var condition = day?.Condition;
             var iconUrl = condition?.Icon;
             if (!string.IsNullOrWhiteSpace(iconUrl) && iconUrl.StartsWith("//"))
             {
                 iconUrl = $"https:{iconUrl}";
             }
 
-            _logger.LogInformation("Retrieved current weather for {Location} from WeatherAPI.com", location?.Name);
+            _logger.LogInformation("Retrieved today's weather for {Location} from WeatherAPI.com", location?.Name);
 
-            return Success(new GetCurrentWeatherOutput
+            return Success(new GetTodaysWeatherOutput
             {
                 LocationName = location?.Name,
                 Region = location?.Region,
                 Country = location?.Country,
                 LocalTime = location?.Localtime,
-                TemperatureC = current?.TempC ?? 0,
-                TemperatureF = current?.TempF ?? 0,
+                Date = forecastDay?.Date,
+                MaxTemperatureC = day?.MaxTempC ?? 0,
+                MaxTemperatureF = day?.MaxTempF ?? 0,
+                MinTemperatureC = day?.MinTempC ?? 0,
+                MinTemperatureF = day?.MinTempF ?? 0,
+                AvgTemperatureC = day?.AvgTempC ?? 0,
+                AvgTemperatureF = day?.AvgTempF ?? 0,
+                MaxWindMph = day?.MaxWindMph ?? 0,
+                MaxWindKph = day?.MaxWindKph ?? 0,
+                TotalPrecipMm = day?.TotalPrecipMm ?? 0,
+                TotalPrecipIn = day?.TotalPrecipIn ?? 0,
+                TotalSnowCm = day?.TotalSnowCm ?? 0,
+                AvgVisKm = day?.AvgVisKm ?? 0,
+                AvgVisMiles = day?.AvgVisMiles ?? 0,
+                AvgHumidity = day?.AvgHumidity ?? 0,
+                WillItRain = day?.DailyWillItRain == 1,
+                ChanceOfRain = day?.DailyChanceOfRain ?? 0,
+                WillItSnow = day?.DailyWillItSnow == 1,
+                ChanceOfSnow = day?.DailyChanceOfSnow ?? 0,
                 Condition = condition?.Text,
                 ConditionIconUrl = iconUrl,
                 ConditionCode = condition?.Code ?? 0,
-                Humidity = current?.Humidity ?? 0,
-                Cloud = current?.Cloud ?? 0,
-                WindKph = current?.WindKph ?? 0,
-                WindMph = current?.WindMph ?? 0,
-                WindDirection = current?.WindDir,
-                LastUpdated = current?.LastUpdated,
-                WillItRain = current?.WillItRain == 1,
-                ChanceOfRain = current?.ChanceOfRain ?? 0,
-                WillItSnow = current?.WillItSnow == 1,
-                ChanceOfSnow = current?.ChanceOfSnow ?? 0,
+                Uv = day?.Uv ?? 0,
             });
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to get current weather from WeatherAPI.com");
+            _logger.LogError(ex, "Failed to get today's weather from WeatherAPI.com");
             return ActionResult.Failed(ex, StepRunErrorCategory.InvalidResponse);
         }
     }

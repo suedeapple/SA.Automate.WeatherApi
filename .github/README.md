@@ -4,7 +4,7 @@
 [![NuGet](https://img.shields.io/nuget/vpre/SA.Automate.WeatherApi?color=0273B3)](https://www.nuget.org/packages/SA.Automate.WeatherApi)
 [![GitHub license](https://img.shields.io/github/license/suedeapple/SA.Automate.WeatherApi?color=8AB803)](https://github.com/suedeapple/SA.Automate.WeatherApi/blob/main/LICENSE)
 
-WeatherAPI.com connection types and actions for [Umbraco Automate](https://github.com/umbraco/Umbraco.Automate). Get the current weather for a location as part of an automation workflow.
+WeatherAPI.com connection types and actions for [Umbraco Automate](https://github.com/umbraco/Umbraco.Automate). Get the current weather or today's forecast for a location as part of an automation workflow.
 
 ## What is WeatherAPI.com?
 
@@ -45,7 +45,7 @@ Get a free API key from [weatherapi.com](https://www.weatherapi.com/) and set it
       "Providers": {
         "SA.Automate.WeatherApi": {
           "ApiKey": "your-api-key",
-          "DefaultCulture": "en-GB"
+          "Culture": "en-GB"
         }
       }
     }
@@ -53,7 +53,7 @@ Get a free API key from [weatherapi.com](https://www.weatherapi.com/) and set it
 }
 ```
 
-`DefaultCulture` is optional and sets the default culture (e.g. `en-GB`, `fr-FR`) used to localize weather condition text across all actions. Leave it unset to default to English. An action's own **Culture** field always overrides this.
+`Culture` is optional and sets the default culture (e.g. `en-GB`, `fr-FR`) used to localize weather condition text across all actions. Leave it unset to default to English. An action's own **Culture** field always overrides this.
 
 ### 2. Create the connection in the backoffice
 
@@ -65,12 +65,14 @@ Get a free API key from [weatherapi.com](https://www.weatherapi.com/) and set it
 
 ## Usage
 
+### Get Current Weather
+
 Add the **Get Current Weather** action to any automation and select the connection to use. Available fields:
 
 | Field | Description |
 |---|---|
 | Location | The location to get current weather for. Accepts a city name, US zip, UK postcode, IP address, or `lat,lon`. Supports `${ binding }` expressions. |
-| Culture | Optional. The culture to localize the weather condition text into, e.g. `en-GB`, `fr-FR`, `es-ES`. Overrides the globally configured `DefaultCulture`. Falls back to that default, or English if neither is set. Supports `${ binding }` expressions. |
+| Culture | Optional. The culture to localize the weather condition text into, e.g. `en-GB`, `fr-FR`, `es-ES`. Overrides the globally configured `Culture`. Falls back to that default, or English if neither is set. Supports `${ binding }` expressions. |
 
 The action outputs the following, which can be referenced via bindings in later workflow steps:
 
@@ -95,6 +97,47 @@ The action outputs the following, which can be referenced via bindings in later 
 | ChanceOfRain | The chance of rain during the current hour, as a percentage. |
 | WillItSnow | Whether it is expected to snow during the current hour. |
 | ChanceOfSnow | The chance of snow during the current hour, as a percentage. |
+
+### Get Today's Weather
+
+Add the **Get Today's Weather** action to any automation and select the connection to use. Available fields:
+
+| Field | Description |
+|---|---|
+| Location | The location to get today's weather forecast for. Accepts a city name, US zip, UK postcode, IP address, or `lat,lon`. Supports `${ binding }` expressions. |
+| Culture | Optional. The culture to localize the weather condition text into, e.g. `en-GB`, `fr-FR`, `es-ES`. Overrides the globally configured `Culture`. Falls back to that default, or English if neither is set. Supports `${ binding }` expressions. |
+
+The action outputs the following, which can be referenced via bindings in later workflow steps:
+
+| Output | Description |
+|---|---|
+| LocationName | The resolved location name, e.g. "London". |
+| Region | The resolved region. |
+| Country | The resolved country. |
+| LocalTime | The local time at the resolved location. |
+| Date | The forecast date, e.g. "2024-01-01". |
+| MaxTemperatureC | Today's maximum temperature in degrees Celsius. |
+| MaxTemperatureF | Today's maximum temperature in degrees Fahrenheit. |
+| MinTemperatureC | Today's minimum temperature in degrees Celsius. |
+| MinTemperatureF | Today's minimum temperature in degrees Fahrenheit. |
+| AvgTemperatureC | Today's average temperature in degrees Celsius. |
+| AvgTemperatureF | Today's average temperature in degrees Fahrenheit. |
+| MaxWindMph | Today's maximum wind speed in miles per hour. |
+| MaxWindKph | Today's maximum wind speed in kilometres per hour. |
+| TotalPrecipMm | Today's total precipitation in millimetres. |
+| TotalPrecipIn | Today's total precipitation in inches. |
+| TotalSnowCm | Today's total snowfall in centimetres. |
+| AvgVisKm | Today's average visibility in kilometres. |
+| AvgVisMiles | Today's average visibility in miles. |
+| AvgHumidity | Today's average humidity, as a percentage. |
+| WillItRain | Whether it is expected to rain at some point today. |
+| ChanceOfRain | The chance of rain at some point today, as a percentage. |
+| WillItSnow | Whether it is expected to snow at some point today. |
+| ChanceOfSnow | The chance of snow at some point today, as a percentage. |
+| Condition | The weather condition text, e.g. "Partly Cloudy". |
+| ConditionIconUrl | The URL of the icon representing the weather condition. |
+| ConditionCode | The WeatherAPI.com condition code, e.g. `1003` for "Partly Cloudy". |
+| Uv | The UV index. |
 
 ## Compatibility
 

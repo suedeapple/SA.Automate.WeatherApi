@@ -24,8 +24,10 @@ public class WeatherApiComposer : IComposer
         builder.WithCollectionBuilder<ConnectionTypeCollectionBuilder>()
             .Add<WeatherApiConnectionType>();
 
-        // Register the Get Current Weather action so it is available in Umbraco Automate workflows
+        // Register the Get Current Weather and Get Today's Weather actions so they are available
+        // in Umbraco Automate workflows
         builder.WithCollectionBuilder<ActionCollectionBuilder>()
-            .Add<GetCurrentWeatherAction>();
+            .Add<GetCurrentWeatherAction>()
+            .Add<GetTodaysWeatherAction>();
     }
 }

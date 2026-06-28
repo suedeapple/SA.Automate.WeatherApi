@@ -5,7 +5,7 @@ namespace SA.Automate.WeatherApi.Models;
 /// <summary>
 /// Represents a successful response from the WeatherAPI.com current weather endpoint.
 /// </summary>
-internal class WeatherApiResponse
+internal class WeatherApiCurrentResponse
 {
     [JsonPropertyName("location")]
     public WeatherApiLocation? Location { get; set; }
