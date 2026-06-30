@@ -61,4 +61,7 @@ public sealed class GetCurrentWeatherOutput
 
     /// <summary>Gets the chance of snow during the current hour, as a percentage.</summary>
     public int ChanceOfSnow { get; init; }
+
+    /// <summary>Gets the UV index.</summary>
+    public double Uv { get; init; }
 }

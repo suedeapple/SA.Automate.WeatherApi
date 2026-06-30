@@ -129,6 +129,7 @@ public class GetCurrentWeatherAction : ActionBase<GetCurrentWeatherSettings, Get
                 ChanceOfRain = current?.ChanceOfRain ?? 0,
                 WillItSnow = current?.WillItSnow == 1,
                 ChanceOfSnow = current?.ChanceOfSnow ?? 0,
+                Uv = current?.Uv ?? 0,
             });
         }
         catch (Exception ex)

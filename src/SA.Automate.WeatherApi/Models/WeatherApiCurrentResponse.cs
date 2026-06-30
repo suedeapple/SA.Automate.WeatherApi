@@ -75,6 +75,9 @@ internal class WeatherApiCurrent
 
     [JsonPropertyName("chance_of_snow")]
     public int ChanceOfSnow { get; set; }
+
+    [JsonPropertyName("uv")]
+    public double Uv { get; set; }
 }
 
 /// <summary>
