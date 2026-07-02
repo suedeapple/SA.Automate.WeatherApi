@@ -64,4 +64,7 @@ public sealed class GetCurrentWeatherOutput
 
     /// <summary>Gets the UV index.</summary>
     public double Uv { get; init; }
+
+    /// <summary>Gets the full, unprocessed JSON response returned by WeatherAPI.com.</summary>
+    public string? RawResponse { get; init; }
 }

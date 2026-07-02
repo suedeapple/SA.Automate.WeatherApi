@@ -138,6 +138,7 @@ public class GetTodaysWeatherAction : ActionBase<GetTodaysWeatherSettings, GetTo
                 ConditionIconUrl = iconUrl,
                 ConditionCode = condition?.Code ?? 0,
                 Uv = day?.Uv ?? 0,
+                RawResponse = result.RawBody,
             });
         }
         catch (Exception ex)

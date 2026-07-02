@@ -8,7 +8,7 @@ WeatherAPI.com connection types and actions for [Umbraco Automate](https://githu
 
 ## What is WeatherAPI.com?
 
-[WeatherAPI.com](https://www.weatherapi.com/) is a JSON/XML weather API that provides current weather, forecasts, and historical weather for locations worldwide, looked up by city name, postcode/zip, IP address, or latitude/longitude. The free plan is suitable for commercial use.
+[WeatherAPI.com](https://www.weatherapi.com/) is a JSON/XML weather API that provides current weather, forecasts, and historical weather for locations worldwide, looked up by city name, postcode/zip, IP address, or latitude/longitude.
 
 ## What can this be used for?
 
@@ -98,6 +98,7 @@ The action outputs the following, which can be referenced via bindings in later 
 | WillItSnow | Whether it is expected to snow during the current hour. |
 | ChanceOfSnow | The chance of snow during the current hour, as a percentage. |
 | Uv | The UV index. |
+| RawResponse | The full, unprocessed JSON response returned by WeatherAPI.com. |
 
 ### Get Today's Weather
 
@@ -139,6 +140,7 @@ The action outputs the following, which can be referenced via bindings in later 
 | ConditionIconUrl | The URL of the icon representing the weather condition. |
 | ConditionCode | The WeatherAPI.com condition code, e.g. `1003` for "Partly Cloudy". |
 | Uv | The UV index. |
+| RawResponse | The full, unprocessed JSON response returned by WeatherAPI.com. |
 
 ## Compatibility
 
