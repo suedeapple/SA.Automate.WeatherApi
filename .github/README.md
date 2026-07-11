@@ -54,7 +54,6 @@ The connection's **API Key** field is marked sensitive, so instead of entering t
 }
 ```
 
-`Umbraco:Automate:Secrets` is on the default allow-list for sensitive fields, and both it and `AllowedConfigurationKeyPrefixes`/`SecretConfigurationKeyPrefixes` can only be set in `appsettings.json`, not from the backoffice.
 
 ### 3. Create the connection in the backoffice
 
