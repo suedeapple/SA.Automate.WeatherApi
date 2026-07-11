@@ -65,7 +65,6 @@ The connection's **API Key** field is marked sensitive, so instead of entering t
    ```
 3. Click **Test connection** to verify. This requests the current weather for a known location to confirm the API key is valid.
 
-**Tip:** You only need multiple connections if different workflows should use different API keys.
 
 ## Usage
 
