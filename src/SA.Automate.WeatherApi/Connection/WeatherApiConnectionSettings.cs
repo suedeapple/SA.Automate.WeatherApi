@@ -8,13 +8,12 @@ namespace SA.Automate.WeatherApi.Connection;
 public sealed class WeatherApiConnectionSettings
 {
     /// <summary>
-    /// Optionally overrides the globally configured WeatherAPI.com API key for this connection.
-    /// Leave blank to use the default key (Umbraco:Automate:Providers:SA.Automate.WeatherApi:ApiKey).
+    /// The WeatherAPI.com API key used by this connection.
     /// </summary>
     [Field(
         Label = "API Key",
-        Description = "Optional. Overrides the globally configured WeatherAPI.com API key for this connection. Leave blank to use the default configured in appsettings.json.",
+        Description = "The WeatherAPI.com API key used by this connection.",
         IsSensitive = true,
         SortOrder = 1)]
-    public string? ApiKey { get; set; }
+    public string ApiKey { get; set; } = "$Umbraco:Automate:Secrets:WeatherApiKey";
 }

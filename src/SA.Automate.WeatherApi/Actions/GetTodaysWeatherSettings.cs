@@ -18,7 +18,7 @@ public class GetTodaysWeatherSettings
     /// <summary>The culture to localize the weather condition text into. Optional.</summary>
     [Field(
         Label = "Culture",
-        Description = "Optional. The culture to localize the weather condition text into, e.g. \"en-GB\", \"fr-FR\", \"es-ES\". Overrides the globally configured default culture. Falls back to that default, or English if none is set. Supports bindings.",
+        Description = "Optional. The culture to localize the weather condition text into, e.g. \"en-GB\", \"fr-FR\", \"es-ES\". Falls back to English if not set. Supports bindings.",
         SupportsBindings = true,
         SortOrder = 2)]
     public string? Culture { get; set; }

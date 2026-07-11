@@ -1,7 +1,5 @@
 using System.Globalization;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using SA.Automate.WeatherApi.Configuration;
 using SA.Automate.WeatherApi.Connection;
 using SA.Automate.WeatherApi.Http;
 using Umbraco.Automate.Core.Actions;
@@ -10,7 +8,7 @@ namespace SA.Automate.WeatherApi.Actions;
 
 /// <summary>
 /// Umbraco Automate action that gets today's weather forecast for a location from
-/// WeatherAPI.com, using the connection's API key if one is configured.
+/// WeatherAPI.com, using the connection's API key.
 /// </summary>
 [Action("weatherApi.GetTodaysWeather", "Get Today's Weather",
     Description = "Gets today's weather forecast for a location",
@@ -21,18 +19,15 @@ public class GetTodaysWeatherAction : ActionBase<GetTodaysWeatherSettings, GetTo
 {
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger<GetTodaysWeatherAction> _logger;
-    private readonly IOptionsMonitor<WeatherApiSettings> _weatherApiSettings;
 
     public GetTodaysWeatherAction(
         ActionInfrastructure infrastructure,
         IHttpClientFactory httpClientFactory,
-        ILogger<GetTodaysWeatherAction> logger,
-        IOptionsMonitor<WeatherApiSettings> weatherApiSettings)
+        ILogger<GetTodaysWeatherAction> logger)
         : base(infrastructure)
     {
         _httpClientFactory = httpClientFactory;
         _logger = logger;
-        _weatherApiSettings = weatherApiSettings;
     }
 
     /// <summary>
@@ -54,16 +49,16 @@ public class GetTodaysWeatherAction : ActionBase<GetTodaysWeatherSettings, GetTo
         }
 
         var connectionSettings = context.Connection?.GetSettings<WeatherApiConnectionSettings>();
-        var apiKey = WeatherApiRequestHelper.ResolveApiKey(connectionSettings?.ApiKey, _weatherApiSettings.CurrentValue.ApiKey);
+        var apiKey = connectionSettings?.ApiKey;
 
         if (string.IsNullOrWhiteSpace(apiKey))
         {
             return ActionResult.Failed(
-                new ArgumentException("A WeatherAPI.com API Key is not configured, either on the connection or in appsettings.json."),
+                new ArgumentException("A WeatherAPI.com API Key is not configured on the connection."),
                 StepRunErrorCategory.Validation);
         }
 
-        var culture = WeatherApiRequestHelper.ResolveCulture(settings.Culture, _weatherApiSettings.CurrentValue.Culture);
+        var culture = settings.Culture;
 
         string? languageCode = null;
         if (!string.IsNullOrWhiteSpace(culture))

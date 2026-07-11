@@ -16,10 +16,6 @@ public class WeatherApiComposer : IComposer
 {
     public void Compose(IUmbracoBuilder builder)
     {
-        // Bind the WeatherAPI.com settings section from appsettings.json (e.g. ApiKey)
-        builder.Services.AddOptions<WeatherApiSettings>()
-            .BindConfiguration(WeatherApiSettings.SectionName);
-
         // Register the WeatherAPI.com connection type so it appears in Umbraco Automate connections
         builder.WithCollectionBuilder<ConnectionTypeCollectionBuilder>()
             .Add<WeatherApiConnectionType>();

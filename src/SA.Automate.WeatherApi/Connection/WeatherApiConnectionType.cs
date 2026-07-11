@@ -1,5 +1,3 @@
-using Microsoft.Extensions.Options;
-using SA.Automate.WeatherApi.Configuration;
 using SA.Automate.WeatherApi.Http;
 using Umbraco.Automate.Core.Connections;
 
@@ -7,7 +5,7 @@ namespace SA.Automate.WeatherApi.Connection;
 
 /// <summary>
 /// Defines the WeatherAPI.com connection type for Umbraco Automate.
-/// Stores an optional access key override per connection, and validates it against the
+/// Stores the API key per connection, and validates it against the
 /// WeatherAPI.com current weather endpoint before saving.
 /// </summary>
 [ConnectionType("weatherApi", "WeatherAPI.com",
@@ -17,21 +15,18 @@ namespace SA.Automate.WeatherApi.Connection;
 public sealed class WeatherApiConnectionType : ConnectionTypeBase<WeatherApiConnectionSettings>
 {
     private readonly IHttpClientFactory _httpClientFactory;
-    private readonly IOptionsMonitor<WeatherApiSettings> _weatherApiSettings;
 
     public WeatherApiConnectionType(
         ConnectionTypeInfrastructure infrastructure,
-        IHttpClientFactory httpClientFactory,
-        IOptionsMonitor<WeatherApiSettings> weatherApiSettings)
+        IHttpClientFactory httpClientFactory)
         : base(infrastructure)
     {
         _httpClientFactory = httpClientFactory;
-        _weatherApiSettings = weatherApiSettings;
     }
 
     /// <summary>
     /// Validates the connection by requesting the current weather for a known location
-    /// using the resolved API key.
+    /// using the configured API key.
     /// </summary>
     public override async Task<ConnectionValidationResult> ValidateAsync(
         object? settings,
@@ -40,13 +35,11 @@ public sealed class WeatherApiConnectionType : ConnectionTypeBase<WeatherApiConn
         if (settings is not WeatherApiConnectionSettings typed)
             return ConnectionValidationResult.Failure("Connection settings are missing.");
 
-        var apiKey = WeatherApiRequestHelper.ResolveApiKey(typed.ApiKey, _weatherApiSettings.CurrentValue.ApiKey);
-
-        if (string.IsNullOrWhiteSpace(apiKey))
-            return ConnectionValidationResult.Failure("An API Key is required, either on the connection or in appsettings.json.");
+        if (string.IsNullOrWhiteSpace(typed.ApiKey))
+            return ConnectionValidationResult.Failure("An API Key is required.");
 
         using var client = _httpClientFactory.CreateClient();
 
-        return await WeatherApiRequestHelper.ValidateApiKeyAsync(client, apiKey, cancellationToken);
+        return await WeatherApiRequestHelper.ValidateApiKeyAsync(client, typed.ApiKey, cancellationToken);
     }
 }

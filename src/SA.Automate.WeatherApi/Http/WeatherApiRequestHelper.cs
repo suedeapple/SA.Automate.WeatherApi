@@ -20,26 +20,6 @@ internal static class WeatherApiRequestHelper
     private const string TestLocation = "London";
 
     /// <summary>
-    /// Resolves the effective API key: a per-connection override wins, otherwise the globally
-    /// configured default. Every WeatherAPI.com request needs a key, so the default is always
-    /// used when no override is set.
-    /// </summary>
-    public static string? ResolveApiKey(string? connectionOverride, string? globalDefault)
-    {
-        return !string.IsNullOrWhiteSpace(connectionOverride) ? connectionOverride : globalDefault;
-    }
-
-    /// <summary>
-    /// Resolves the effective culture: an action-level override wins, otherwise the globally
-    /// configured default culture (<c>Culture</c> in appsettings.json). Returns null
-    /// when neither is set, in which case WeatherAPI.com falls back to English.
-    /// </summary>
-    public static string? ResolveCulture(string? actionOverride, string? globalDefault)
-    {
-        return !string.IsNullOrWhiteSpace(actionOverride) ? actionOverride : globalDefault;
-    }
-
-    /// <summary>
     /// Requests the current weather conditions for a location from the WeatherAPI.com
     /// <c>current.json</c> endpoint, optionally localizing the condition text into
     /// <paramref name="languageCode"/> (a WeatherAPI.com <c>lang</c> value, see

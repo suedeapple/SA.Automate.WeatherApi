@@ -30,35 +30,40 @@ No further setup required. The composer registers itself automatically via Umbra
 
 This package registers a single **WeatherAPI.com** connection type:
 
-- **API Key**: optional. Overrides the globally configured API key for this connection. Leave blank to use the default key configured in `appsettings.json`.
+- **API Key**: required. The WeatherAPI.com API key used by this connection.
 
 ## Setup
 
-### 1. Configure your API key
+### 1. Get an API key
 
-Get a free API key from [weatherapi.com](https://www.weatherapi.com/) and set it as the default in your `appsettings.json` (or `appsettings.Production.json`); individual connections can still override it with their own key:
+Get a free API key from [weatherapi.com](https://www.weatherapi.com/).
+
+### 2. Store the key in appsettings.json (optional)
+
+The connection's **API Key** field is marked sensitive, so instead of entering the key directly in the backoffice you can store it in `appsettings.json` and reference it using Umbraco Automate's [configuration reference](https://docs.umbraco.com/umbraco-automate/getting-started/configuration#configuration-references) syntax:
 
 ```json
 {
   "Umbraco": {
     "Automate": {
-      "Providers": {
-        "SA.Automate.WeatherApi": {
-          "ApiKey": "your-api-key",
-          "Culture": "en-GB"
-        }
+      "Secrets": {
+        "WeatherApiKey": "your-api-key"
       }
     }
   }
 }
 ```
 
-`Culture` is optional and sets the default culture (e.g. `en-GB`, `fr-FR`) used to localize weather condition text across all actions. Leave it unset to default to English. An action's own **Culture** field always overrides this.
+`Umbraco:Automate:Secrets` is on the default allow-list for sensitive fields, and both it and `AllowedConfigurationKeyPrefixes`/`SecretConfigurationKeyPrefixes` can only be set in `appsettings.json`, not from the backoffice.
 
-### 2. Create the connection in the backoffice
+### 3. Create the connection in the backoffice
 
 1. Go to **Automate → Connections** and create a new **WeatherAPI.com** connection.
-2. Give the connection a name. Leave **API Key** blank to use the default configured in `appsettings.json`, or enter a different key for this connection.
+2. Give the connection a name and enter your **API Key** — either the key itself, or, if you stored it in `appsettings.json` above, this reference:
+
+   ```
+   $Umbraco:Automate:Secrets:WeatherApiKey
+   ```
 3. Click **Test connection** to verify. This requests the current weather for a known location to confirm the API key is valid.
 
 **Tip:** You only need multiple connections if different workflows should use different API keys.
@@ -72,7 +77,7 @@ Add the **Get Current Weather** action to any automation and select the connecti
 | Field | Description |
 |---|---|
 | Location | The location to get current weather for. Accepts a city name, US zip, UK postcode, IP address, or `lat,lon`. Supports `${ binding }` expressions. |
-| Culture | Optional. The culture to localize the weather condition text into, e.g. `en-GB`, `fr-FR`, `es-ES`. Overrides the globally configured `Culture`. Falls back to that default, or English if neither is set. Supports `${ binding }` expressions. |
+| Culture | Optional. The culture to localize the weather condition text into, e.g. `en-GB`, `fr-FR`, `es-ES`. Falls back to English if not set. Supports `${ binding }` expressions. |
 
 The action outputs the following, which can be referenced via bindings in later workflow steps:
 
@@ -107,7 +112,7 @@ Add the **Get Today's Weather** action to any automation and select the connecti
 | Field | Description |
 |---|---|
 | Location | The location to get today's weather forecast for. Accepts a city name, US zip, UK postcode, IP address, or `lat,lon`. Supports `${ binding }` expressions. |
-| Culture | Optional. The culture to localize the weather condition text into, e.g. `en-GB`, `fr-FR`, `es-ES`. Overrides the globally configured `Culture`. Falls back to that default, or English if neither is set. Supports `${ binding }` expressions. |
+| Culture | Optional. The culture to localize the weather condition text into, e.g. `en-GB`, `fr-FR`, `es-ES`. Falls back to English if not set. Supports `${ binding }` expressions. |
 
 The action outputs the following, which can be referenced via bindings in later workflow steps:
 
